@@ -4,10 +4,10 @@ class firewall(object):
 	"""docstring for firewall"""
 	def __init__(self):
 		self.path=None
-		self.validinputa={}
-		self.validinputb={}
-		self.validinputc={}
-		self.validinputd={}
+		self.validinputdirection={}
+		self.validinputprotocol={}
+		self.validinputport={}
+		self.validinputipa={}
 		self.validinpute={}
 		self.validinputf={}
 	def new(self,path):
@@ -18,15 +18,16 @@ class firewall(object):
 			for line in reader:
 				i+=1
 				a,b,c,d=line
-				if a in self.validinputa:
-					self.validinputa[a].append(i)
+				
+				if a in self.validinputdirection:
+					self.validinputdirection[a].append(i)
 				else:
-					self.validinputa[a]=[i]
+					self.validinputdirection[a]=[i]
 
-				if b in self.validinputb:
-					self.validinputb[b].append(i)
+				if b in self.validinputprotocol:
+					self.validinputprotocol[b].append(i)
 				else:
-					self.validinputb[b]=[i]
+					self.validinputprotocol[b]=[i]
 
 				if '-' in c:
 					if c in self.validinpute:
@@ -34,10 +35,10 @@ class firewall(object):
 					else:
 						self.validinpute[c]=[i]
 				else:
-					if int(c) in self.validinputc:
-						self.validinputc[int(c)].append(i)
+					if int(c) in self.validinputport:
+						self.validinputport[int(c)].append(i)
 					else:
-						self.validinputc[int(c)]=[i]
+						self.validinputport[int(c)]=[i]
 
 				if '-' in d:
 					if d in self.validinputf:
@@ -45,13 +46,13 @@ class firewall(object):
 					else:
 						self.validinputf[d]=[i]
 				else:
-					if d in self.validinputd:
-						self.validinputd[d].append(i)
+					if d in self.validinputipa:
+						self.validinputipa[d].append(i)
 					else:
-						self.validinputd[d]=[i]
+						self.validinputipa[d]=[i]
 
 	def accept_packet(self,direction,protocol,port,ip_address):
-		if port not in self.validinputc:
+		if port not in self.validinputport:
 			t=[]
 			for key in self.validinpute:
 				a,b=key.split('-')
@@ -59,9 +60,9 @@ class firewall(object):
 					for item in self.validinpute[key]:
 						t.append(item)
 		else:
-			t=self.validinputc[port]
+			t=self.validinputport[port]
 
-		if ip_address not in self.validinputd:
+		if ip_address not in self.validinputipa:
 			p=[]
 			for key in self.validinputf:
 				a,b=key.split('-')
@@ -69,10 +70,10 @@ class firewall(object):
 					for item in self.validinputf[key]:
 						p.append(item)
 		else:
-			p=self.validinputd[ip_address]
+			p=self.validinputipa[ip_address]
 
-		if direction in self.validinputa and protocol in self.validinputb and t and p:
-			if set(self.validinputa[direction])&set(self.validinputb[protocol])&set(t)&set(p):
+		if direction in self.validinputdirection and protocol in self.validinputprotocol and t and p:
+			if set(self.validinputdirection[direction])&set(self.validinputprotocol[protocol])&set(t)&set(p):
 				print('success')
 				return True
 			else:
